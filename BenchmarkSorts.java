@@ -1,5 +1,8 @@
 
 import java.util.Random;
+
+import javax.swing.text.StyledEditorKit.ItalicAction;
+
 import Models.IterativeModel;
 import Models.RecursiveModel;
 
@@ -39,10 +42,12 @@ public class BenchmarkSorts {
     }
 
     private static void runSorts(int[] array, int numRuns) throws UnsortedException {
+        int[] itArray = array.clone();
+        int[] recArray = array.clone();
 
         // Runs iterative sort
         it = new IterativeModel(numRuns);
-        it.sortedIterativeArray = mergeSort.iterativeSort(array);
+        it.sortedIterativeArray = mergeSort.iterativeSort(itArray);
         int returnCount = mergeSort.getCount();
         long returnTime = mergeSort.getTime();
         it.iterativeCount = it.iterativeCount + returnCount;
@@ -53,7 +58,7 @@ public class BenchmarkSorts {
 
         // Runs recursive sort
         rec = new RecursiveModel(numRuns);
-        rec.sortedRecursiveArray = mergeSort.recursiveSort(array);
+        rec.sortedRecursiveArray = mergeSort.recursiveSort(recArray);
         returnCount = mergeSort.getCount();
         returnTime = mergeSort.getTime();
         rec.recursiveCount = rec.recursiveCount + returnCount;

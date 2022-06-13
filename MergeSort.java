@@ -1,162 +1,126 @@
+import java.util.Arrays;
+
 public class MergeSort implements SortInterface {
 
     int count = 0;
     long timeStart = 0;
     long timeEnd = 0;
 
-    /////////////////////////////////////////
-    // Iterative mergeSort
-    /////////////////////////////////////////
-
-    public int[] iterativeSort(int[] a) throws UnsortedException {
-        count++;
-        timeStart = System.nanoTime();
-        int[] aux = new int[a.length];
-        for (int blockSize = 1; blockSize < a.length; blockSize *= 2) {
-            count++;
-            for (int start = 0; start < a.length; start += 2 * blockSize) {
-                merge(a, aux, start, start + blockSize, start + 2 * blockSize);
-            }
-        }
-
-        timeEnd = System.nanoTime();
-        checkSortedArray(aux);
-        return aux;
-    }
-
     // Iterative approach from GeeksForGeeks
     // https://www.geeksforgeeks.org/iterative-merge-sort/
-    public int[] iterativeSort(int[] array){
-        if(array == null){
+    public int[] iterativeSort(int[] array) throws UnsortedException {
+        count++;
+        timeStart = System.nanoTime();
+        if (array == null) {
             return new int[0];
         }
-        if(array.length > 1){
+        if (array.length > 1) {
             int mid = array.length / 2;
 
             // Split left part
             int[] left = new int[mid];
-            for(int i = 0; i < mid; i++){
+            for (int i = 0; i < mid; i++) {
                 left[i] = array[i];
             }
 
             // Split right part
             int[] right = new int[array.length - mid];
-            for(int i = mid; i < array.length; i++){
+            for (int i = mid; i < array.length; i++) {
                 right[i - mid] = array[i];
             }
-            mergeSort(left);
-            mergeSort(right);
+            int[] left2 = iterativeSort(left);
+            int[] right2 = iterativeSort(right);
 
             int i = 0;
             int j = 0;
             int k = 0;
- 
+
             // Merge left and right arrays
-            while(i < left.length && j < right.length)
-            {
-                if(left[i] < right[j])
-                {
-                    array[k] = left[i];
+            while (i < left2.length && j < right2.length) {
+                if (left2[i] < right2[j]) {
+                    array[k] = left2[i];
                     i++;
-                }
-                else
-                {
-                    array[k] = right[j];
+                } else {
+                    array[k] = right2[j];
                     j++;
                 }
                 k++;
             }
             // Collect remaining elements
-            while(i < left.length)
-            {
-                array[k] = left[i];
+            while (i < left2.length) {
+                array[k] = left2[i];
                 i++;
                 k++;
             }
-            while(j < right.length)
-            {
-                array[k] = right[j];
+            while (j < right.length) {
+                array[k] = right2[j];
                 j++;
                 k++;
             }
         }
+        timeEnd = System.nanoTime();
+        checkSortedArray(array);
+        return array;
     }
 
-  
-    private void merge(int[] a, int[] aux, int lo, int mid, int hi) {
-        count++;
-        // DK: add two tests to first verify "mid" and "hi" are in range
-        if (mid >= a.length) {
-            count++;
-            return;
-        }
-
-        if (hi > a.length) {
-            count++;
-            hi = a.length;
-        }
-
-        int i = lo, j = mid;
-
-        for (int k = lo; k < hi; k++) {
-            count++;
-            if (i == mid) {
-                count++;
-                aux[k] = a[j++];
-            }
-            else if (j == hi) {
-                count++;
-                aux[k] = a[i++];
-            }
-            else if (a[j] < a[i]) {
-                count++;
-                aux[k] = a[j++];
-            }
-            else {
-                count++;
-                aux[k] = a[i++];
-            }
-        }
-
-        // copy back
-        for (int k = lo; k < hi; k++) {
-            count++;
-            a[k] = aux[k];
-        }
-    }
-
-    private void recursiveSort(int[] a, int[] aux, int lo, int hi) {
-        count++;
-        // base case
-        if (hi - lo <= 1) {
-            count++;
-            return;
-        }
-
-        // sort each half, recursively
-        int mid = lo + (hi - lo) / 2;
-
-        recursiveSort(a, aux, lo, mid);
-
-        recursiveSort(a, aux, mid, hi);
-
-        // merge back together
-        merge(a, aux, lo, mid, hi);
-    }
-
-    public int[] recursiveSort(int[] a) throws UnsortedException {
+    // Recursive approach from GeeksForDeeks
+    // https://www.geeksforgeeks.org/merge-sort/
+    public int[] recursiveSort(int[] array) throws UnsortedException {
         count++;
         timeStart = System.nanoTime();
-        int n = a.length;
 
-        int[] aux = new int[n];
+        // array = recursiveSort(array, array.length);
 
-        recursiveSort(a, aux, 0, n);
+        if (array.length > 1) {
+            int middle = array.length / 2;
+
+            // Split left part
+            int[] left = new int[middle];
+            for (int i = 0; i < middle; i++) {
+                left[i] = array[i];
+            }
+
+            // Split right part
+            int[] right = new int[array.length - middle];
+            for (int i = middle; i < array.length; i++) {
+                right[i - middle] = array[i];
+            }
+
+            int[] left2 = recursiveSort(left);
+            int[] right2 = recursiveSort(right);
+
+            array = recursiveMerge(array, left2, right2, middle, array.length - middle);
+        }
 
         timeEnd = System.nanoTime();
-        checkSortedArray(aux);
+        checkSortedArray(array);
 
-        return aux;
+        return array;
+    }
+
+    // Based off of post from Baeldung
+    // https://www.baeldung.com/java-merge-sort
+    private int[] recursiveMerge(int[] array, int[] leftHalf, int[] rightHalf, int left, int right) {
+        int i = 0;
+        int j = 0;
+        int k = 0;
+
+        while (i < left && j < right) {
+            if (leftHalf[i] <= rightHalf[j]) {
+                array[k++] = leftHalf[i++];
+            } else {
+                array[k++] = rightHalf[j++];
+            }
+        }
+
+        while (i < left) {
+            array[k++] = leftHalf[i++];
+        }
+
+        while (j < right) {
+            array[k++] = rightHalf[j++];
+        }
+        return array;
     }
 
     public int getCount() {
