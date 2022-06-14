@@ -12,20 +12,17 @@ import Sorting.UnsortedException;
 public class BenchmarkSorts {
 
     private final static int NUMBER_OF_RUNS = 50;
-
-    // private int[] sortedIterativeArray;
     private static SortModel iterative;
     private static SortModel recursive;
-    private static MergeSort mergeSort = new MergeSort();
 
     public static void main(String[] args) {
         int[] sizes = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
         for (int size : sizes) {
-            BenchmarkSorts(size);
+            DoSorts(size);
         }
     }
 
-    private static void BenchmarkSorts(int size) {
+    private static void DoSorts(int size) {
         int[] array;
         ReportData iterativeData = new ReportData(size, NUMBER_OF_RUNS);
         ReportData recursiveData = new ReportData(size, NUMBER_OF_RUNS);
@@ -74,6 +71,7 @@ public class BenchmarkSorts {
 
     private static SortModel runSort(int[] array, SortModel model, int numRuns, boolean isIterative)
             throws UnsortedException {
+        MergeSort mergeSort = new MergeSort();
         model.sortedArray = (isIterative) ? mergeSort.iterativeSort(array) : mergeSort.recursiveSort(array);
         int returnCount = mergeSort.getCount();
         long returnTime = mergeSort.getTime();
@@ -98,43 +96,4 @@ public class BenchmarkSorts {
         bufferedWriter.newLine();
         bufferedWriter.close();
     }
-
-    // private static void displayReport(SortModel model, int arraySize, String
-    // type) {
-    // // set local variables
-    // double averageCount = 0;
-    // double averageTime = 0;
-    // double varianceCount = 0;
-    // double varianceTime = 0;
-    // double sdCount = 0;
-    // double sdTime = 0;
-
-    // // Calculate averages
-    // for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-    // averageCount += model.countLog[i];
-    // averageTime += model.timeLog[i];
-    // }
-    // averageCount = averageCount / arraySize;
-    // averageTime = averageTime / arraySize;
-
-    // // Calculate standard deviation
-    // for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-    // varianceCount += Math.pow(averageCount - model.countLog[i], 2);
-    // varianceTime += Math.pow(averageTime - model.timeLog[i], 2);
-    // }
-
-    // varianceCount = varianceCount / arraySize;
-    // varianceTime = varianceTime / arraySize;
-
-    // sdCount = Math.sqrt(varianceCount);
-    // sdTime = Math.sqrt(varianceTime);
-
-    // System.out.println("Data Set Size (n): " + arraySize
-    // + "\n" + type + " Selection Sort Results:"
-    // + "\nAverage Critical Operation Count: " + Math.round(averageCount)
-    // + "\nStandard Deviation of Count: " + Math.round(sdCount)
-    // + "\nAverage Execution Time: " + Math.round(averageTime)
-    // + "\nStandard Deviation of Time: " + Math.round(sdTime)
-    // + "\n\n");
-    // }
 }

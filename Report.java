@@ -1,6 +1,9 @@
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -13,7 +16,6 @@ public class Report {
     static JFrame frame;
     static JPanel buttonPanel;
     static JPanel tablePanel;
-    static JTable table;
     static JButton button;
     static JFileChooser fileChooser;
     static File file;
@@ -25,27 +27,23 @@ public class Report {
 
         file = new File(".");
 
-        button = new JButton("Select file");
-        button.addActionListener(e -> {
-            //
-        });
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // frame.setLayout(new GridLayout(3, 1));
-        frame.setSize(400, 400);
+        frame.setLayout(new GridLayout(2, 1));
+        int frameSize = 300;
+        frame.setSize(frameSize, frameSize);
 
         CreatePanels();
 
-        // frame.pack();
+        frame.pack();
         frame.setVisible(true);
     }
 
     private static void CreatePanels() {
         buttonPanel = createButtonPanel();
-        tablePanel = createTablePanel();
+        // tablePanel = createTablePanel();
 
         frame.add(buttonPanel);
-        //frame.add(tablePanel);
+        // frame.add(tablePanel);
     }
 
     private static JPanel createButtonPanel() {
@@ -57,37 +55,34 @@ public class Report {
     }
 
     public static void onButtonPress(JButton button) {
-        // Select the file 
+        // Select the file
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(file);
         int result = fileChooser.showOpenDialog(button);
         if (result == JFileChooser.APPROVE_OPTION) {
-            
+
             // Get information from the file
             file = fileChooser.getSelectedFile();
             try {
                 // Collect all of the lines from the file
                 Scanner reader = new Scanner(file);
-                
-                // Count how many lines there are and set the size of the ReportData array to that size
-                // int numLines = 0;
-                // while(reader.hasNext()){
-                //     numLines++;
-                // }
-                // dataSets = new ReportData[numLines];
-                dataSets = new ReportData[10];
+                List<String> linesList = new ArrayList<String>();
+                while (reader.hasNextLine()) {
+                    linesList.add((reader.nextLine()));
+                }
+
+                dataSets = new ReportData[linesList.size()];
 
                 // Collect data from an indidual line and add it to dataSets
                 int index = 0;
-                while (reader.hasNextLine()) {
-                    String line = reader.nextLine();
+                for (String line : linesList) {
                     String[] lineArray = line.split(" ");
 
                     int size = Integer.parseInt(lineArray[0]);
                     String[] dataModels = Arrays.copyOfRange(lineArray, 1, lineArray.length);
 
                     ReportData data = new ReportData(size, dataModels.length);
-                    for(int i = 0; i < dataModels.length; i++){
+                    for (int i = 0; i < dataModels.length; i++) {
                         ReportModel newModel = new ReportModel();
                         newModel.convertFromString(dataModels[i]);
                         data.dataModels[i] = newModel;
@@ -96,6 +91,8 @@ public class Report {
                     index++;
                 }
                 reader.close();
+
+                refreshFrame();
             } catch (FileNotFoundException e) {
                 System.err.println(e.getMessage());
             }
@@ -104,14 +101,22 @@ public class Report {
     }
 
     private static JPanel createTablePanel() {
-        return null;
+        JPanel panel = new JPanel();
+        JScrollPane scroll = new JScrollPane();
+
+        JTable table = createTable();
+        scroll.setViewportView(table);
+        panel.add(scroll);
+        System.out.println("New Table Panel Created");
+        return panel;
     }
 
-    public static void createTable() {
+    public static JTable createTable() {
+        JTable table;
         String[] columnNames = { "Size", "Average Count", "Coef Count", "Average Time", "Coef Time" };
 
         TableModel[] tableData = new TableModel[dataSets.length];
-        for(int i = 0; i < dataSets.length; i++){
+        for (int i = 0; i < dataSets.length; i++) {
             TableModel data = new TableModel();
 
             ReportData reportData = dataSets[i];
@@ -119,20 +124,66 @@ public class Report {
 
             int countCount = 0;
             long timeCount = 0;
-            int county = 0;
-            for(ReportModel dataModel : reportData.dataModels){
+            int size = 0;
+            for (ReportModel dataModel : reportData.dataModels) {
                 countCount += dataModel.count;
                 timeCount += dataModel.time;
-                county++;
+                size++;
             }
 
             // Calculate average
-            data.countAverage = countCount / county;
-            data.timeAverage = timeCount / county;
+            data.countAverage = countCount / size;
+            data.timeAverage = timeCount / size;
+
+            // Calculate Standard deviation
+            int countStandardDeviation = 0;
+            long timeStandardDeviation = 0;
+            for (ReportModel dataModel : reportData.dataModels) {
+                countStandardDeviation += Math.pow(dataModel.count - data.countAverage, 2);
+                timeStandardDeviation += Math.pow(dataModel.time - data.timeAverage, 2);
+            }
+            int countVariance = countStandardDeviation / data.countAverage;
+            data.countCoef = Math.sqrt(countVariance / size);
+
+            long timeVariance = timeStandardDeviation / data.timeAverage;
+            data.timeCoef = Math.sqrt(timeVariance / size);
 
             // Calculate coefficient (use benchmark's commented out display method)
             tableData[i] = data;
         }
-        table = new JTable(tableData, columnNames);
+
+        List<String[]> formattedData;
+        formattedData = new ArrayList<String[]>();
+        for (TableModel model : tableData) {
+            formattedData.add(new String[] {
+                    Integer.toString(model.size),
+                    Integer.toString(model.countAverage),
+                    Double.toString(model.countCoef),
+                    Long.toString(model.timeAverage),
+                    Double.toString(model.timeCoef)
+            });
+        }
+        String[][] dataArray = formattedData.toArray(new String[tableData.length][5]);
+        table = new JTable(dataArray, columnNames);
+        System.out.println("Table Created");
+        return table;
+    }
+
+    public static void refreshFrame() {
+        frame.setVisible(false);
+        frame.remove(buttonPanel);
+        if (tablePanel != null) {
+            frame.remove(tablePanel);
+        }
+
+        buttonPanel = createButtonPanel();
+        tablePanel = createTablePanel();
+
+        frame.add(buttonPanel);
+        frame.add(tablePanel);
+
+        frame.repaint();
+        frame.pack();
+        frame.setVisible(true);
     }
 }
