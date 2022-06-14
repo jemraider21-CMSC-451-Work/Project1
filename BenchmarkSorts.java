@@ -6,6 +6,8 @@ import java.util.Random;
 import Models.ReportData;
 import Models.ReportModel;
 import Models.SortModel;
+import Sorting.MergeSort;
+import Sorting.UnsortedException;
 
 public class BenchmarkSorts {
 
@@ -38,14 +40,14 @@ public class BenchmarkSorts {
             // Run the sort and produces output if an unsorted exception is found
             try {
                 ReportModel[] datas = runSorts(array, size);
-                iterativeData.data[i] = datas[0];
-                recursiveData.data[i] = datas[1];
+                iterativeData.dataModels[i] = datas[0];
+                recursiveData.dataModels[i] = datas[1];
             } catch (UnsortedException e) {
                 System.out.println(e.getMessage());
             }
         }
-        //displayReport(iterative, size, "Iterative");
-        //displayReport(recursive, size, "Recursive");
+        // displayReport(iterative, size, "Iterative");
+        // displayReport(recursive, size, "Recursive");
         try {
             generateReport(iterativeData, "Reports/iterativeInput.txt");
             generateReport(recursiveData, "Reports/recursiveInput.txt");
@@ -85,10 +87,10 @@ public class BenchmarkSorts {
         return model;
     }
 
-    private static void generateReport(ReportData reportData, String fileName) throws IOException{
+    private static void generateReport(ReportData reportData, String fileName) throws IOException {
         String newLine = "";
-        newLine += reportData.size +" ";
-        for (ReportModel model : reportData.data) {
+        newLine += reportData.size + " ";
+        for (ReportModel model : reportData.dataModels) {
             newLine += model.toString() + " ";
         }
 
@@ -99,41 +101,42 @@ public class BenchmarkSorts {
         bufferedWriter.close();
     }
 
-    // private static void displayReport(SortModel model, int arraySize, String type) {
-    //     // set local variables
-    //     double averageCount = 0;
-    //     double averageTime = 0;
-    //     double varianceCount = 0;
-    //     double varianceTime = 0;
-    //     double sdCount = 0;
-    //     double sdTime = 0;
+    // private static void displayReport(SortModel model, int arraySize, String
+    // type) {
+    // // set local variables
+    // double averageCount = 0;
+    // double averageTime = 0;
+    // double varianceCount = 0;
+    // double varianceTime = 0;
+    // double sdCount = 0;
+    // double sdTime = 0;
 
-    //     // Calculate averages
-    //     for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-    //         averageCount += model.countLog[i];
-    //         averageTime += model.timeLog[i];
-    //     }
-    //     averageCount = averageCount / arraySize;
-    //     averageTime = averageTime / arraySize;
+    // // Calculate averages
+    // for (int i = 0; i < NUMBER_OF_RUNS; i++) {
+    // averageCount += model.countLog[i];
+    // averageTime += model.timeLog[i];
+    // }
+    // averageCount = averageCount / arraySize;
+    // averageTime = averageTime / arraySize;
 
-    //     // Calculate standard deviation
-    //     for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-    //         varianceCount += Math.pow(averageCount - model.countLog[i], 2);
-    //         varianceTime += Math.pow(averageTime - model.timeLog[i], 2);
-    //     }
+    // // Calculate standard deviation
+    // for (int i = 0; i < NUMBER_OF_RUNS; i++) {
+    // varianceCount += Math.pow(averageCount - model.countLog[i], 2);
+    // varianceTime += Math.pow(averageTime - model.timeLog[i], 2);
+    // }
 
-    //     varianceCount = varianceCount / arraySize;
-    //     varianceTime = varianceTime / arraySize;
+    // varianceCount = varianceCount / arraySize;
+    // varianceTime = varianceTime / arraySize;
 
-    //     sdCount = Math.sqrt(varianceCount);
-    //     sdTime = Math.sqrt(varianceTime);
+    // sdCount = Math.sqrt(varianceCount);
+    // sdTime = Math.sqrt(varianceTime);
 
-    //     System.out.println("Data Set Size (n): " + arraySize
-    //             + "\n" + type + " Selection Sort Results:"
-    //             + "\nAverage Critical Operation Count: " + Math.round(averageCount)
-    //             + "\nStandard Deviation of Count: " + Math.round(sdCount)
-    //             + "\nAverage Execution Time: " + Math.round(averageTime)
-    //             + "\nStandard Deviation of Time: " + Math.round(sdTime)
-    //             + "\n\n");
+    // System.out.println("Data Set Size (n): " + arraySize
+    // + "\n" + type + " Selection Sort Results:"
+    // + "\nAverage Critical Operation Count: " + Math.round(averageCount)
+    // + "\nStandard Deviation of Count: " + Math.round(sdCount)
+    // + "\nAverage Execution Time: " + Math.round(averageTime)
+    // + "\nStandard Deviation of Time: " + Math.round(sdTime)
+    // + "\n\n");
     // }
 }

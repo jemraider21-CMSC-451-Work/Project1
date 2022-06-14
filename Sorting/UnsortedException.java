@@ -1,3 +1,4 @@
+package Sorting;
 public class UnsortedException extends Exception {
     public UnsortedException() {
         super();

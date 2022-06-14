@@ -60,7 +60,9 @@ public class Report {
             try {
                 Scanner reader = new Scanner(file);
                 while (reader.hasNextLine()) {
-                    System.out.println(reader.nextLine());
+                    String line = reader.nextLine();
+                    Scanner tokenizer = new Scanner(line);
+                    System.out.println(tokenizer);
                 }
                 reader.close();
             } catch (FileNotFoundException e) {

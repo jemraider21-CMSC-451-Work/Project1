@@ -1,5 +1,7 @@
 package Models;
 
+import java.util.Scanner;
+
 public class ReportModel {
     public int count;
     public long time;
@@ -14,6 +16,14 @@ public class ReportModel {
     }
 
     public String toString() {
-        return String.format("{%d, %d}", count, time);
+        return String.format("{%d,%d}", count, time);
+    }
+
+    public void convertFromString(String data){
+        data.replace("{", "");
+        data.replace("}", "");
+        Scanner convertToken = new Scanner(data);
+        convertToken.useDelimiter(",");
+        
     }
 }

@@ -1,3 +1,4 @@
+package Sorting;
 public interface SortInterface {
     public int[] recursiveSort(int[] list) throws UnsortedException;
 
