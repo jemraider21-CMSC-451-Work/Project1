@@ -46,8 +46,6 @@ public class BenchmarkSorts {
                 System.out.println(e.getMessage());
             }
         }
-        // displayReport(iterative, size, "Iterative");
-        // displayReport(recursive, size, "Recursive");
         try {
             generateReport(iterativeData, "Reports/iterativeInput.txt");
             generateReport(recursiveData, "Reports/recursiveInput.txt");

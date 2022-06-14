@@ -20,10 +20,9 @@ public class ReportModel {
     }
 
     public void convertFromString(String data){
-        data.replace("{", "");
-        data.replace("}", "");
-        Scanner convertToken = new Scanner(data);
-        convertToken.useDelimiter(",");
+        String[] dataArray = data.replace("{", "").replace("}", "").split(",");
         
+        this.count = Integer.parseInt(dataArray[0]);
+        this.time = Long.parseLong(dataArray[1]);
     }
 }
