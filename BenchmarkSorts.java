@@ -1,22 +1,23 @@
-
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
-import javax.swing.text.StyledEditorKit.ItalicAction;
-
-import Models.IterativeModel;
-import Models.RecursiveModel;
+import Models.ReportData;
+import Models.ReportModel;
+import Models.SortModel;
 
 public class BenchmarkSorts {
 
     private final static int NUMBER_OF_RUNS = 50;
 
     // private int[] sortedIterativeArray;
-    private static IterativeModel it;
-    private static RecursiveModel rec;
+    private static SortModel iterative;
+    private static SortModel recursive;
     private static MergeSort mergeSort = new MergeSort();
 
     public static void main(String[] args) {
-        int[] sizes = { 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000 };
+        int[] sizes = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
         for (int size : sizes) {
             BenchmarkSorts(size);
         }
@@ -24,6 +25,9 @@ public class BenchmarkSorts {
 
     private static void BenchmarkSorts(int size) {
         int[] array;
+        ReportData iterativeData = new ReportData(size, NUMBER_OF_RUNS);
+        ReportData recursiveData = new ReportData(size, NUMBER_OF_RUNS);
+
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
             array = new int[size];
             for (int j = 0; j < size; j++) {
@@ -33,98 +37,103 @@ public class BenchmarkSorts {
 
             // Run the sort and produces output if an unsorted exception is found
             try {
-                runSorts(array, size);
+                ReportModel[] datas = runSorts(array, size);
+                iterativeData.data[i] = datas[0];
+                recursiveData.data[i] = datas[1];
             } catch (UnsortedException e) {
                 System.out.println(e.getMessage());
             }
         }
-        displayReport(size);
+        //displayReport(iterative, size, "Iterative");
+        //displayReport(recursive, size, "Recursive");
+        try {
+            generateReport(iterativeData, "Reports/iterativeInput.txt");
+            generateReport(recursiveData, "Reports/recursiveInput.txt");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    private static void runSorts(int[] array, int numRuns) throws UnsortedException {
+    private static ReportModel[] runSorts(int[] array, int numRuns) throws UnsortedException {
         int[] itArray = array.clone();
         int[] recArray = array.clone();
 
         // Runs iterative sort
-        it = new IterativeModel(numRuns);
-        it.sortedIterativeArray = mergeSort.iterativeSort(itArray);
-        int returnCount = mergeSort.getCount();
-        long returnTime = mergeSort.getTime();
-        it.iterativeCount = it.iterativeCount + returnCount;
-        it.iterativeTime = it.iterativeTime + returnTime;
-        it.iterativeCountLog[it.iterativeIndex] = returnCount;
-        it.iterativeTimeLog[it.iterativeIndex] = returnTime;
-        it.iterativeIndex++;
+        iterative = new SortModel(numRuns);
+        iterative = runSort(itArray, iterative, numRuns, true);
+        ReportModel itData = new ReportModel(iterative.count, iterative.time);
 
         // Runs recursive sort
-        rec = new RecursiveModel(numRuns);
-        rec.sortedRecursiveArray = mergeSort.recursiveSort(recArray);
-        returnCount = mergeSort.getCount();
-        returnTime = mergeSort.getTime();
-        rec.recursiveCount = rec.recursiveCount + returnCount;
-        rec.recursiveTime = rec.recursiveTime + returnTime;
-        rec.recursiveCountLog[rec.recursiveIndex] = rec.recursiveCount;
-        rec.recursiveTimeLog[rec.recursiveIndex] = rec.recursiveTime;
-        rec.recursiveIndex++;
+        recursive = new SortModel(numRuns);
+        recursive = runSort(recArray, recursive, numRuns, false);
+        ReportModel recData = new ReportModel(recursive.count, recursive.time);
+
+        return new ReportModel[] { itData, recData };
     }
 
-    private static void displayReport(int arraySize) {
-
-        // Sets local variables
-        double iterativeAverageCount = 0;
-        double iterativeAverageTime = 0;
-        double recursiveAverageCount = 0;
-        double recursiveAverageTime = 0;
-        double iterativeVarianceCount = 0;
-        double iterativeVarianceTime = 0;
-        double recursiveVarianceCount = 0;
-        double recursiveVarianceTime = 0;
-        double iterativeSDCount = 0;
-        double iterativeSDTime = 0;
-        double recursiveSDCount = 0;
-        double recursiveSDTime = 0;
-
-        // Calculates averages
-        for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-            iterativeAverageCount += it.iterativeCountLog[i];
-            iterativeAverageTime += it.iterativeTimeLog[i];
-            recursiveAverageCount += rec.recursiveCountLog[i];
-            recursiveAverageTime += rec.recursiveTimeLog[i];
-        }
-
-        iterativeAverageCount = iterativeAverageCount / arraySize;
-        iterativeAverageTime = iterativeAverageTime / arraySize;
-        recursiveAverageCount = recursiveAverageCount / arraySize;
-        recursiveAverageTime = recursiveAverageTime / arraySize;
-
-        // Calculates standard deviations
-        for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-            iterativeVarianceCount += Math.pow(iterativeAverageCount - it.iterativeCountLog[i], 2);
-            iterativeVarianceTime += Math.pow(iterativeAverageTime - it.iterativeTimeLog[i], 2);
-            recursiveVarianceCount += Math.pow(recursiveAverageCount - rec.recursiveCountLog[i], 2);
-            recursiveVarianceTime += Math.pow(recursiveAverageTime - rec.recursiveTimeLog[i], 2);
-        }
-
-        iterativeVarianceCount = iterativeVarianceCount / arraySize;
-        iterativeVarianceTime = iterativeVarianceTime / arraySize;
-        recursiveVarianceCount = recursiveVarianceCount / arraySize;
-        recursiveVarianceTime = recursiveVarianceTime / arraySize;
-
-        iterativeSDCount = Math.sqrt(iterativeVarianceCount);
-        iterativeSDTime = Math.sqrt(iterativeVarianceTime);
-        recursiveSDCount = Math.sqrt(recursiveVarianceCount);
-        recursiveSDTime = Math.sqrt(recursiveVarianceTime);
-
-        // Produces output
-        System.out.println("Data Set Size (n): " + arraySize +
-                "\n\tIterative Selection Sort Results: \t\t\t\t\tRecursive Selection Sort Results:" +
-                "\n\tAverage Critical Operation Count: " + Math.round(iterativeAverageCount) +
-                "\t\t\tAverage Critical Operation Count: " + Math.round(recursiveAverageCount) +
-                "\n\tStandard Deviation of Count: " + Math.round(iterativeSDCount) +
-                "\t\t\t\t\tStandard Deviation of Count: " + Math.round(recursiveSDCount) +
-                "\n\tAverage Execution Time: " + Math.round(iterativeAverageTime) +
-                "\t\t\t\t\t\tAverage Execution Time: " + Math.round(recursiveAverageTime) +
-                "\n\tStandard Deviation of Time: " + Math.round(iterativeSDTime) +
-                "\t\t\t\t\t\tStandard Deviation of Time: " + Math.round(recursiveSDTime));
+    private static SortModel runSort(int[] array, SortModel model, int numRuns, boolean isIterative)
+            throws UnsortedException {
+        model.sortedArray = (isIterative) ? mergeSort.iterativeSort(array) : mergeSort.recursiveSort(array);
+        int returnCount = mergeSort.getCount();
+        long returnTime = mergeSort.getTime();
+        model.count = model.count + returnCount;
+        model.time = model.time + returnTime;
+        model.countLog[model.index] = returnCount;
+        model.timeLog[model.index] = returnTime;
+        model.index++;
+        return model;
     }
+
+    private static void generateReport(ReportData reportData, String fileName) throws IOException{
+        String newLine = "";
+        newLine += reportData.size +" ";
+        for (ReportModel model : reportData.data) {
+            newLine += model.toString() + " ";
+        }
+
+        FileWriter fileWriter = new FileWriter(fileName, true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        bufferedWriter.write(newLine);
+        bufferedWriter.newLine();
+        bufferedWriter.close();
+    }
+
+    // private static void displayReport(SortModel model, int arraySize, String type) {
+    //     // set local variables
+    //     double averageCount = 0;
+    //     double averageTime = 0;
+    //     double varianceCount = 0;
+    //     double varianceTime = 0;
+    //     double sdCount = 0;
+    //     double sdTime = 0;
+
+    //     // Calculate averages
+    //     for (int i = 0; i < NUMBER_OF_RUNS; i++) {
+    //         averageCount += model.countLog[i];
+    //         averageTime += model.timeLog[i];
+    //     }
+    //     averageCount = averageCount / arraySize;
+    //     averageTime = averageTime / arraySize;
+
+    //     // Calculate standard deviation
+    //     for (int i = 0; i < NUMBER_OF_RUNS; i++) {
+    //         varianceCount += Math.pow(averageCount - model.countLog[i], 2);
+    //         varianceTime += Math.pow(averageTime - model.timeLog[i], 2);
+    //     }
+
+    //     varianceCount = varianceCount / arraySize;
+    //     varianceTime = varianceTime / arraySize;
+
+    //     sdCount = Math.sqrt(varianceCount);
+    //     sdTime = Math.sqrt(varianceTime);
+
+    //     System.out.println("Data Set Size (n): " + arraySize
+    //             + "\n" + type + " Selection Sort Results:"
+    //             + "\nAverage Critical Operation Count: " + Math.round(averageCount)
+    //             + "\nStandard Deviation of Count: " + Math.round(sdCount)
+    //             + "\nAverage Execution Time: " + Math.round(averageTime)
+    //             + "\nStandard Deviation of Time: " + Math.round(sdTime)
+    //             + "\n\n");
+    // }
 }
