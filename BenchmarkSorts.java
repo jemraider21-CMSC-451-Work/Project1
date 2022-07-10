@@ -81,7 +81,8 @@ public class BenchmarkSorts {
     private static SortModel runSort(int[] array, SortModel model, int numRuns, boolean isIterative)
             throws UnsortedException {
         MergeSort mergeSort = new MergeSort();
-        model.sortedArray = (isIterative) ? mergeSort.iterativeSort(array) : mergeSort.recursiveSort(array);
+        model.sortedArray = (isIterative) ? mergeSort.iterativeSort(array, array.length)
+                : mergeSort.recursiveSort(array);
         int returnCount = mergeSort.getCount();
         long returnTime = mergeSort.getTime();
         model.count = model.count + returnCount;
