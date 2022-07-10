@@ -1,6 +1,11 @@
 import java.awt.*;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,12 +54,19 @@ public class Report {
     private static JPanel createButtonPanel() {
         JPanel panel = new JPanel();
         button = new JButton("Select a File");
-        button.addActionListener(e -> onButtonPress(button));
+        button.addActionListener(e -> {
+            try {
+                onButtonPress(button);
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        });
         panel.add(button);
         return panel;
     }
 
-    public static void onButtonPress(JButton button) {
+    public static void onButtonPress(JButton button) throws IOException {
         // Select the file
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(file);
@@ -100,7 +112,7 @@ public class Report {
 
     }
 
-    private static JPanel createTablePanel() {
+    private static JPanel createTablePanel() throws IOException {
         JPanel panel = new JPanel();
         JScrollPane scroll = new JScrollPane();
 
@@ -111,7 +123,7 @@ public class Report {
         return panel;
     }
 
-    public static JTable createTable() {
+    public static JTable createTable() throws IOException {
         JTable table;
         String[] columnNames = { "Size", "Average Count", "Coef Count", "Average Time", "Coef Time" };
 
@@ -166,10 +178,34 @@ public class Report {
         String[][] dataArray = formattedData.toArray(new String[tableData.length][5]);
         table = new JTable(dataArray, columnNames);
         System.out.println("Table Created");
+
+        // Creating a file that contains the data from the table
+        String inputFileName = file.getName();
+        String tableDataFileName = inputFileName.substring(0, inputFileName.length() - 9);
+        // String tableDataFilePath = String.format("Reports/%sTableData.txt",
+        // tableDataFileName);
+        tableDataFileName = String.format("TableDataFiles/%sTableData.txt", tableDataFileName);
+
+        File tableDataFile = new File(tableDataFileName);
+        if (tableDataFile.exists()) {
+            tableDataFile.delete();
+        }
+
+        FileWriter fileWriter = new FileWriter(tableDataFileName, true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        for (String[] entry : formattedData) {
+            String newLine = "";
+            for (String data : entry) {
+                newLine += data + " ";
+            }
+            bufferedWriter.write(newLine);
+            bufferedWriter.newLine();
+        }
+        bufferedWriter.close();
         return table;
     }
 
-    public static void refreshFrame() {
+    public static void refreshFrame() throws IOException {
         frame.setVisible(false);
         frame.remove(buttonPanel);
         if (tablePanel != null) {
