@@ -193,10 +193,13 @@ public class Report {
 
         FileWriter fileWriter = new FileWriter(tableDataFileName, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+        bufferedWriter.write("| Size | Count Average | Count Coefficient |Time Average |Time Coefficient");
+        bufferedWriter.newLine();
         for (String[] entry : formattedData) {
-            String newLine = "";
+            String newLine = "| ";
             for (String data : entry) {
-                newLine += data + " ";
+                newLine += data + " | ";
             }
             bufferedWriter.write(newLine);
             bufferedWriter.newLine();
