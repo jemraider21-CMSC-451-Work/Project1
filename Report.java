@@ -122,7 +122,7 @@ public class Report {
             ReportData reportData = dataSets[i];
             data.size = reportData.size;
 
-            int countCount = 0;
+            long countCount = 0;
             long timeCount = 0;
             int size = 0;
             for (ReportModel dataModel : reportData.dataModels) {
@@ -136,16 +136,16 @@ public class Report {
             data.timeAverage = timeCount / size;
 
             // Calculate Standard deviation
-            int countStandardDeviation = 0;
-            long timeStandardDeviation = 0;
+            double countStandardDeviation = 0;
+            double timeStandardDeviation = 0;
             for (ReportModel dataModel : reportData.dataModels) {
                 countStandardDeviation += Math.pow(dataModel.count - data.countAverage, 2);
                 timeStandardDeviation += Math.pow(dataModel.time - data.timeAverage, 2);
             }
-            int countVariance = countStandardDeviation / data.countAverage;
+            double countVariance = countStandardDeviation / data.countAverage;
             data.countCoef = Math.sqrt(countVariance / size);
 
-            long timeVariance = timeStandardDeviation / data.timeAverage;
+            double timeVariance = timeStandardDeviation / data.timeAverage;
             data.timeCoef = Math.sqrt(timeVariance / size);
 
             // Calculate coefficient (use benchmark's commented out display method)
@@ -157,9 +157,9 @@ public class Report {
         for (TableModel model : tableData) {
             formattedData.add(new String[] {
                     Integer.toString(model.size),
-                    Integer.toString(model.countAverage),
+                    Double.toString(model.countAverage),
                     Double.toString(model.countCoef),
-                    Long.toString(model.timeAverage),
+                    Double.toString(model.timeAverage),
                     Double.toString(model.timeCoef)
             });
         }

@@ -1,6 +1,8 @@
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Random;
 
 import Models.ReportData;
@@ -15,8 +17,16 @@ public class BenchmarkSorts {
     private static SortModel iterative;
     private static SortModel recursive;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        // Delete reports if they exists
+        String[] filePaths = new String[] { "Reports/iterativeInput.txt", "Reports/recursiveInput.txt" };
+        for (String filePath : filePaths) {
+            File file = new File(filePath);
+            file.delete();
+        }
+
         int[] sizes = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
+        // int[] sizes = { 100 };
         for (int size : sizes) {
             DoSorts(size);
         }
@@ -47,7 +57,6 @@ public class BenchmarkSorts {
             generateReport(iterativeData, "Reports/iterativeInput.txt");
             generateReport(recursiveData, "Reports/recursiveInput.txt");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

@@ -1,4 +1,5 @@
 package Sorting;
+
 import java.util.Arrays;
 
 public class MergeSort implements SortInterface {
@@ -7,10 +8,13 @@ public class MergeSort implements SortInterface {
     long timeStart = 0;
     long timeEnd = 0;
 
+    public MergeSort() {
+        this.count = 0;
+    }
+
     // Iterative approach from GeeksForGeeks
     // https://www.geeksforgeeks.org/iterative-merge-sort/
     public int[] iterativeSort(int[] array) throws UnsortedException {
-        count++;
         timeStart = System.nanoTime();
         if (array == null) {
             return new int[0];
@@ -38,12 +42,15 @@ public class MergeSort implements SortInterface {
 
             // Merge left and right arrays
             while (i < left2.length && j < right2.length) {
+                count++;
                 if (left2[i] < right2[j]) {
                     array[k] = left2[i];
                     i++;
+                    count++;
                 } else {
                     array[k] = right2[j];
                     j++;
+                    count++;
                 }
                 k++;
             }
@@ -52,11 +59,13 @@ public class MergeSort implements SortInterface {
                 array[k] = left2[i];
                 i++;
                 k++;
+                count++;
             }
             while (j < right.length) {
                 array[k] = right2[j];
                 j++;
                 k++;
+                count++;
             }
         }
         timeEnd = System.nanoTime();
@@ -67,7 +76,6 @@ public class MergeSort implements SortInterface {
     // Recursive approach from GeeksForDeeks
     // https://www.geeksforgeeks.org/merge-sort/
     public int[] recursiveSort(int[] array) throws UnsortedException {
-        count++;
         timeStart = System.nanoTime();
 
         // array = recursiveSort(array, array.length);
@@ -107,19 +115,24 @@ public class MergeSort implements SortInterface {
         int k = 0;
 
         while (i < left && j < right) {
+            count++;
             if (leftHalf[i] <= rightHalf[j]) {
                 array[k++] = leftHalf[i++];
+                count++;
             } else {
                 array[k++] = rightHalf[j++];
+                count++;
             }
         }
 
         while (i < left) {
             array[k++] = leftHalf[i++];
+            count++;
         }
 
         while (j < right) {
             array[k++] = rightHalf[j++];
+            count++;
         }
         return array;
     }
